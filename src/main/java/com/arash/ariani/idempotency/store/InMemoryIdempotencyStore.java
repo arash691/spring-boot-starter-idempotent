@@ -32,6 +32,7 @@ public class InMemoryIdempotencyStore implements IdempotencyStore {
         CacheEntry(Object response, Duration ttl) {
             this(response, ttl, Instant.now());
         }
+
         boolean isExpired() {
             return Instant.now().isAfter(createdAt.plus(ttl));
         }

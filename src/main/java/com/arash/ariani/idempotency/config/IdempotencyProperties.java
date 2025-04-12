@@ -5,10 +5,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "idempotency")
 public class IdempotencyProperties {
 
-    public enum StoreType { MEMORY, REDIS, JPA }
-
     private StoreType store = StoreType.MEMORY;
-
     private boolean initSchema = false;
 
     public boolean isInitSchema() {
@@ -26,4 +23,6 @@ public class IdempotencyProperties {
     public void setStore(StoreType store) {
         this.store = store;
     }
+
+    public enum StoreType {MEMORY, REDIS, JPA}
 }
