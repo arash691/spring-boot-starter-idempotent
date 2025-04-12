@@ -1,7 +1,7 @@
 # Idempotency Spring Boot Starter
 
 ## Project Title
-Idempotency Spring Boot Starter is a library that provides easy-to-use idempotency features for Spring Boot applications. It allows you to ensure that an operation (e.g., an API request or service call) is only executed once, even in cases of retries, by leveraging an idempotency key.
+This library provides easy-to-use idempotency features for Spring Boot applications. It allows you to ensure that an operation (e.g., an API request or service call) is only executed once, even in cases of retries, by leveraging an idempotency key.
 
 ## Features
 - **Idempotent Requests**: Annotate your methods with `@Idempotent` to make them idempotent based on a unique key.
