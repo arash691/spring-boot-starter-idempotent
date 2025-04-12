@@ -2,6 +2,7 @@ package com.arash.ariani.idempotency.store.jpa;
 
 import jakarta.persistence.*;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -17,10 +18,10 @@ public class IdempotencyRecord {
     private String payload;
 
     @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private Instant createdAt = Instant.now();
 
     @Column(name = "ttl_expiry")
-    private LocalDateTime ttlExpiry;
+    private Instant ttlExpiry;
 
     public String getKey() {
         return key;
@@ -38,19 +39,19 @@ public class IdempotencyRecord {
         this.payload = payload;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getTtlExpiry() {
+    public Instant getTtlExpiry() {
         return ttlExpiry;
     }
 
-    public void setTtlExpiry(LocalDateTime ttlExpiry) {
+    public void setTtlExpiry(Instant ttlExpiry) {
         this.ttlExpiry = ttlExpiry;
     }
 

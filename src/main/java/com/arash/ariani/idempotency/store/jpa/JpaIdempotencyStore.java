@@ -3,14 +3,13 @@ package com.arash.ariani.idempotency.store.jpa;
 import com.arash.ariani.idempotency.store.IdempotencyStore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 
-@Component
+
 public class JpaIdempotencyStore implements IdempotencyStore {
 
     private final ObjectMapper mapper;
@@ -23,8 +22,11 @@ public class JpaIdempotencyStore implements IdempotencyStore {
 
     @Override
     public boolean exists(String key) {
-        return repository.existsById(key);
+        return repository.findById(key)
+                .filter(record -> record.getTtlExpiry().isAfter(Instant.now()))
+                .isPresent();
     }
+
 
     @Override
     public void save(String key, Object response, Duration ttl) {
@@ -33,7 +35,7 @@ public class JpaIdempotencyStore implements IdempotencyStore {
             IdempotencyRecord record = new IdempotencyRecord();
             record.setKey(key);
             record.setPayload(json);
-            record.setTtlExpiry(LocalDateTime.now().plus(ttl));
+            record.setTtlExpiry(Instant.now().plus(ttl));
             repository.save(record);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("Failed to serialize response", e);
@@ -42,12 +44,18 @@ public class JpaIdempotencyStore implements IdempotencyStore {
 
     @Override
     public Optional<Object> get(String key) {
-        return repository.findById(key).map(record -> {
-            try {
-                return mapper.readValue(record.getPayload(), Object.class);
-            } catch (IOException e) {
-                throw new RuntimeException("Failed to deserialize cached payload", e);
-            }
-        });
+        return repository.findById(key)
+                .filter(record -> {
+                    Instant now = Instant.now();
+                    return record.getTtlExpiry().isAfter(now);
+                })
+                .map(record -> {
+                    try {
+                        return mapper.readValue(record.getPayload(), Object.class);
+                    } catch (IOException e) {
+                        throw new RuntimeException("Failed to deserialize cached payload", e);
+                    }
+                });
     }
+
 }
