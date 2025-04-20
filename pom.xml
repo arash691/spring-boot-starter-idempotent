@@ -4,7 +4,7 @@
 
     <groupId>com.arash.ariani</groupId>
     <artifactId>spring-boot-starter-idempotent</artifactId>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>spring-boot-starter-idempotent</name>

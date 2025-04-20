@@ -1,6 +1,12 @@
 package com.arash.ariani.idempotency.config;
 
-import com.arash.ariani.idempotency.aspect.IdempotencyAspect;
+
+import com.arash.ariani.idempotency.context.IdempotencyHandler;
+import com.arash.ariani.idempotency.context.aspect.IdempotencyAspect;
+import com.arash.ariani.idempotency.context.executor.IdempotentExecutor;
+import com.arash.ariani.idempotency.context.executor.IdempotentExecutors;
+import com.arash.ariani.idempotency.scope.DefaultScopeResolver;
+import com.arash.ariani.idempotency.scope.IdempotencyScopeResolver;
 import com.arash.ariani.idempotency.store.IdempotencyStore;
 import com.arash.ariani.idempotency.store.InMemoryIdempotencyStore;
 import com.arash.ariani.idempotency.store.jpa.IdempotencyRecord;
@@ -22,8 +28,6 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 
-import java.security.NoSuchAlgorithmException;
-
 @EnableAspectJAutoProxy
 @Configuration(enforceUniqueMethods = false)
 @ConditionalOnClass(IdempotencyAspect.class)
@@ -32,12 +36,26 @@ public class IdempotencyAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    public IdempotencyAspect idempotencyAspect(
-            ApplicationContext context,
-            IdempotencyStore idempotencyStore,
-            ObjectMapper objectMapper
-    ) throws NoSuchAlgorithmException {
-        return new IdempotencyAspect(context, idempotencyStore, objectMapper);
+    public IdempotencyAspect idempotencyAspect(ApplicationContext context, IdempotencyHandler handler) {
+        return new IdempotencyAspect(context, handler);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdempotencyHandler idempotencyHandler(IdempotencyStore store, ApplicationContext context) {
+        return new IdempotencyHandler(store, context);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdempotentExecutor idempotentExecutor(IdempotencyHandler idempotencyHandler) {
+        return new IdempotentExecutor(idempotencyHandler);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean
+    public IdempotencyScopeResolver idempotencyScopeResolver() {
+        return new DefaultScopeResolver();
     }
 
     @Bean
@@ -64,6 +82,12 @@ public class IdempotencyAutoConfiguration {
         return new RedisIdempotencyStore(redisTemplate);
     }
 
+    @Bean
+    @ConditionalOnMissingBean
+    public IdempotentExecutors idempotentExecutors() {
+        return new IdempotentExecutors();
+    }
+
     @Configuration
     @ConditionalOnProperty(name = "idempotency.store", havingValue = "jpa")
     @EnableJpaRepositories(basePackageClasses = IdempotencyRecordRepository.class)
@@ -77,4 +101,3 @@ public class IdempotencyAutoConfiguration {
         }
     }
 }
-

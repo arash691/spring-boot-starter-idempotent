@@ -6,9 +6,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryIdempotencyStore implements IdempotencyStore {
 
-    private record Entry(Object value, long expireAtMillis) {
-    }
-
     private final ConcurrentHashMap<String, Entry> store = new ConcurrentHashMap<>();
 
     @Override
@@ -27,13 +24,18 @@ public class InMemoryIdempotencyStore implements IdempotencyStore {
         })).map(Entry::value);
     }
 
+
+
     @Override
     public boolean exists(String key) {
-        return get(key).isPresent();
+        return store.containsKey(key);
     }
 
     private boolean isExpired(Entry entry) {
         return System.currentTimeMillis() > entry.expireAtMillis;
+    }
+
+    private record Entry(Object value, long expireAtMillis) {
     }
 }
 

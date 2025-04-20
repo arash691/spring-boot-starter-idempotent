@@ -4,7 +4,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 
 public class DefaultScopeResolver implements IdempotencyScopeResolver {
     @Override
-    public String resolveScope(ProceedingJoinPoint joinPoint) {
+    public String resolveScope() {
         return "GLOBAL";
     }
 }

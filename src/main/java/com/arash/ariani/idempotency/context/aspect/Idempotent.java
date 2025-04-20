@@ -1,6 +1,8 @@
-package com.arash.ariani.idempotency.annotation;
+package com.arash.ariani.idempotency.context.aspect;
 
-import com.arash.ariani.idempotency.conflict.ConflictHandling;
+
+import com.arash.ariani.idempotency.conflict.ConflictResolver;
+import com.arash.ariani.idempotency.conflict.DefaultConflictResolver;
 import com.arash.ariani.idempotency.scope.DefaultScopeResolver;
 import com.arash.ariani.idempotency.scope.IdempotencyScopeResolver;
 
@@ -18,11 +20,7 @@ public @interface Idempotent {
 
     String ttl() default "15m";
 
-    ConflictHandling onConflict() default ConflictHandling.THROW_409;
-
     Class<? extends IdempotencyScopeResolver> scopeResolver() default DefaultScopeResolver.class;
 
-    boolean hashResponse() default false;
-
-    int replayStatus() default 200;
+    Class<? extends ConflictResolver> conflictResolver() default DefaultConflictResolver.class;
 }
